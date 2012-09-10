@@ -19,6 +19,14 @@ module WL
 			self.new(header,body)
 		end
 
+		def header
+			@header
+		end
+		
+		def body
+			@body
+		end
+
 		def to_str
 			out = ""
 			out << "=Header=\n"
@@ -45,9 +53,9 @@ module WL
 				type = field[0]
 				name = field[1]
 				fields[name] = case type
-							   when :uint
+							   when "uint"
 								   pop_uint!(bytes)
-							   when :string
+							   when "string"
 								   pop_string!(bytes)
 							   else
 								   raise ParseError.new("Unknown field type #{type}")
@@ -66,7 +74,7 @@ module WL
 
 		def self.pop_string!(bytes)
 			length = pop_uint!(bytes)
-			bytes.slice!(0,length)
+			bytes.slice!(0,length).delete("\000")
 		end
 	end
 end

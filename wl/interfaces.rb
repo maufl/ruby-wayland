@@ -3,12 +3,12 @@ module WL
 		class Base
 			
 			def self.opcodes
-				@opcodes ||= [nil]
+				@opcodes ||= []
 			end
 
 			def self.event(name, parameters)
 				define_method("on_#{name}") do |&block|
-					on(name, block)
+					on(name, &block)
 				end
 				define_method("fire_#{name}") do |args|
 					fire(name, args)
@@ -20,20 +20,32 @@ module WL
 				end
 				self.opcodes << name
 			end
+
+			def self.unpack(event, bytes)
+				event = self.opcodes[event] if event.is_a? Fixnum
+				Message.build(bytes, sig(event))
+			end
 			
 			def self.sig(event)
 				event = opcodes[event] if event.is_a? Fixnum
 				send("sig_#{event}")
 			end
 
+			def initialize(id)
+				@id = id
+				@callbacks = {}
+			end
+
 			def on(event, &block)
 				event = self.class.opcodes[event] if event.is_a? Fixnum
+				@callbacks[event] ||= []
 				@callbacks[event] << block
 				@callbacks[event].length - 1
 			end
 
 			def fire(event, args)
 				event = self.class.opcodes[event] if event.is_a? Fixnum
+				@callbacks[event] ||= []
 				@callbacks[event].each do |block|
 					block.call args
 				end

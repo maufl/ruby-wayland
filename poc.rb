@@ -7,8 +7,12 @@ if ARGV[0].empty?
 	exit 1
 end
 
-con = WL::Connection.new(ARGV[0])
-con.start_event_loop
+if ARGV[1].empty?
+	WL::Parser.parse(ARGV[1])
+end
+
+#con = WL::Connection.new(ARGV[0])
+#con.start_event_loop
 
 #wayland = UNIXSocket.new(ARGV[0])
 #while (header = wayland.read(8)).size == 8
